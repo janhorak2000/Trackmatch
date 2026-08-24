@@ -122,44 +122,80 @@
   .msg-incoming{display:flex; gap:10px; align-items:flex-start; margin-bottom:14px; background:rgba(198,217,77,.06); border:1px solid rgba(198,217,77,.25); border-radius:3px; padding:12px;}
   .msg-incoming .txt{font-size:14px; line-height:1.5;}
   .msg-incoming .from{font-family:'IBM Plex Mono'; font-size:10px; color:var(--lime); letter-spacing:.1em; margin-bottom:4px;}
+
+  .lb-row{display:flex; align-items:center; gap:12px; background:var(--night-2); border:1px solid #22282a; border-radius:3px; padding:10px 14px; margin-bottom:8px; text-align:left;}
+  .lb-rank{font-family:'IBM Plex Mono'; font-weight:600; color:var(--lime); width:18px;}
+  .lb-name{flex:1; font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .lb-meters{font-family:'IBM Plex Mono'; font-size:12px; color:var(--slate);}
+  .lb-empty{color:var(--slate-dim); font-size:13px; margin-bottom:8px;}
 </style>
 </head>
 <body>
 
-<!-- PROFILE / SIGN-IN SCREEN -->
+<!-- AUTH SCREEN -->
 <div class="screen" id="profileScreen">
   <div class="eyebrow">Live GPS · 400M Head to Head</div>
   <h1>Track<span>match.</span></h1>
-  <p class="sub">Set up your racer profile to get on the track.</p>
+  <p class="sub" id="authSub">Create an account to get on the track.</p>
 
   <button class="btn btn-google" id="googleBtn">Continue with Google</button>
   <button class="btn btn-facebook" id="facebookBtn">Continue with Facebook</button>
-  <p class="note" style="margin-top:0;"><b>Demo mode:</b> these buttons aren't connected to real Google/Facebook accounts in this preview — they just take you to the same name + photo setup below. Real OAuth needs a registered app + backend, which isn't possible inside this file.</p>
+  <p class="note" style="margin-top:0;" id="facebookNote"><b>Note:</b> Facebook sign-in needs a Facebook Developer app connected in your Firebase console — until that's set up, this button will show an error.</p>
 
-  <div class="divider">OR SET UP MANUALLY</div>
+  <div class="divider" id="authDivider">OR WITH EMAIL</div>
 
-  <div class="avatar-picker">
-    <div class="avatar lg" id="avatarPreview">?</div>
-    <div>
-      <div class="avatar-upload-btn" id="uploadTrigger">Upload photo</div>
-      <input type="file" accept="image/*" id="avatarInput" class="hidden">
+  <div id="signupFields">
+    <div class="avatar-picker">
+      <div class="avatar lg" id="avatarPreview">?</div>
+      <div>
+        <div class="avatar-upload-btn" id="uploadTrigger">Upload photo</div>
+        <input type="file" accept="image/*" id="avatarInput" class="hidden">
+      </div>
+    </div>
+    <div class="field">
+      <label>Display Name</label>
+      <input type="text" id="nameInput" maxlength="18" placeholder="YOUR NAME" autocomplete="off">
     </div>
   </div>
 
   <div class="field">
-    <label>Display Name</label>
-    <input type="text" id="nameInput" maxlength="18" placeholder="YOUR NAME" autocomplete="off">
+    <label>Email</label>
+    <input type="text" id="emailInput" placeholder="YOU@EMAIL.COM" autocomplete="off" autocapitalize="off" style="text-transform:none;">
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input type="text" id="passwordInput" placeholder="AT LEAST 6 CHARACTERS" autocomplete="off" style="text-transform:none;">
   </div>
 
-  <button class="btn btn-primary" id="saveProfileBtn">Save & Continue</button>
+  <p class="note hidden" id="authError" style="color:var(--danger); margin-top:0;"></p>
+
+  <button class="btn btn-primary" id="authSubmitBtn">Create Account</button>
+  <div class="avatar-upload-btn" id="authToggleLink" style="margin-top:14px;">Already have an account? Log in</div>
+</div>
+
+<!-- STATS SCREEN -->
+<div class="screen hidden" id="statsScreen">
+  <div class="eyebrow">Your Profile</div>
+  <div class="avatar lg" id="statsAvatar" style="margin:14px auto;">?</div>
+  <h1 style="font-size:30px;" id="statsName">Runner</h1>
+  <div class="vs-row" style="margin-top:20px;">
+    <div class="vs-card"><div class="t" id="statRuns">0</div><div class="card-sub">Total Runs</div></div>
+    <div class="vs-card"><div class="t" id="statMeters">0 m</div><div class="card-sub">Total Distance</div></div>
+  </div>
+  <div class="vs-row">
+    <div class="vs-card"><div class="t" id="statRecord">0–0</div><div class="card-sub">Wins–Losses</div></div>
+    <div class="vs-card"><div class="t" id="statPace">—</div><div class="card-sub">Avg Pace /km</div></div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn btn-ghost" id="signOutBtn2">Log Out</button>
+  <button class="btn btn-ghost" id="backHomeFromStatsBtn">Back</button>
 </div>
 
 <!-- HOME SCREEN -->
 <div class="screen hidden" id="homeScreen">
-  <div class="who">
+  <div class="who" id="homeWho" style="cursor:pointer;">
     <div class="avatar" id="homeAvatar">?</div>
     <div class="name" id="homeName">—</div>
-    <div class="sign-out" id="signOutBtn">Switch profile</div>
   </div>
   <div class="eyebrow">400M · CHOOSE YOUR RACE</div>
   <h1 style="font-size:36px;">Ready to<br>run<span>?</span></h1>
@@ -172,6 +208,9 @@
     <div class="card-title">Race Now</div>
     <div class="card-sub">Get matched with a random runner instantly, or a 7:00/km pacer bot if no one's around.</div>
   </div>
+
+  <div class="divider">TOP RUNNERS THIS MONTH</div>
+  <div id="leaderboardBox"></div>
 </div>
 
 <!-- FRIEND SETUP SCREEN -->
@@ -292,6 +331,23 @@
   <button class="btn btn-ghost" id="homeFromFinishBtn">Home</button>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAiD17kFwb8XMSlT0eY_huFOUQD0YpoiWw",
+    authDomain: "trackmatch-ff640.firebaseapp.com",
+    databaseURL: "https://trackmatch-ff640-default-rtdb.firebaseio.com",
+    projectId: "trackmatch-ff640",
+    storageBucket: "trackmatch-ff640.firebasestorage.app",
+    messagingSenderId: "480661648214",
+    appId: "1:480661648214:web:6ebaff6b9b6f7fa1095cf7",
+    measurementId: "G-CFHBX9VPN9"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const fbdb = firebase.database();
+</script>
 <script>
 (function(){
   const TRACK_LENGTH = 400;
@@ -299,7 +355,7 @@
   const BOT_TIMEOUT_MS = 9000;
 
   const $ = id => document.getElementById(id);
-  const screens = ['profileScreen','homeScreen','friendSetupScreen','waitScreen','countScreen','raceScreen','finishScreen'];
+  const screens = ['profileScreen','statsScreen','homeScreen','friendSetupScreen','waitScreen','countScreen','raceScreen','finishScreen'];
   function show(id){ screens.forEach(s => $(s).classList.toggle('hidden', s!==id)); }
 
   let profile = {name:'', avatar:null};
@@ -329,30 +385,19 @@
     el.innerHTML = avatarHTML(p);
   }
 
-  // ---- profile persistence (personal, this device) ----
-  async function loadProfile(){
-    try{
-      const r = await window.storage.get('profile', false);
-      if (r) profile = JSON.parse(r.value);
-    }catch(e){}
-  }
-  async function saveProfile(){
-    try{ await window.storage.set('profile', JSON.stringify(profile), false); }catch(e){}
-  }
+  // ---- storage helpers (shared, via Firebase Realtime Database) ----
+  async function writeLane(data){ try{ await fbdb.ref(`races/${raceCode}/lane${myLane}`).set(data); }catch(e){} }
+  async function readLane(lane){ try{ const s=await fbdb.ref(`races/${raceCode}/lane${lane}`).once('value'); return s.exists()?s.val():null; }catch(e){return null;} }
+  async function writeState(o){ try{ await fbdb.ref(`races/${raceCode}/state`).set(o); }catch(e){} }
+  async function readState(){ try{ const s=await fbdb.ref(`races/${raceCode}/state`).once('value'); return s.exists()?s.val():null; }catch(e){return null;} }
+  async function writeMsg(text){ try{ await fbdb.ref(`races/${raceCode}/msg${myLane}`).set({text, name:profile.name, avatar:profile.avatar||null, t:Date.now()}); }catch(e){} }
+  async function readMsg(lane){ try{ const s=await fbdb.ref(`races/${raceCode}/msg${lane}`).once('value'); return s.exists()?s.val():null; }catch(e){return null;} }
 
-  // ---- storage helpers (shared) ----
-  async function writeLane(data){ try{ await window.storage.set(`race:${raceCode}:lane${myLane}`, JSON.stringify(data), true);}catch(e){} }
-  async function readLane(lane){ try{ const r=await window.storage.get(`race:${raceCode}:lane${lane}`, true); return r?JSON.parse(r.value):null;}catch(e){return null;} }
-  async function writeState(o){ try{ await window.storage.set(`race:${raceCode}:state`, JSON.stringify(o), true);}catch(e){} }
-  async function readState(){ try{ const r=await window.storage.get(`race:${raceCode}:state`, true); return r?JSON.parse(r.value):null;}catch(e){return null;} }
-  async function writeMsg(text){ try{ await window.storage.set(`race:${raceCode}:msg${myLane}`, JSON.stringify({text, name:profile.name, avatar:profile.avatar, t:Date.now()}), true);}catch(e){} }
-  async function readMsg(lane){ try{ const r=await window.storage.get(`race:${raceCode}:msg${lane}`, true); return r?JSON.parse(r.value):null;}catch(e){return null;} }
-
-  // ---- matchmaking helpers ----
-  async function mmSet(id, val){ try{ await window.storage.set(`mm:queue:${id}`, JSON.stringify(val), true);}catch(e){} }
-  async function mmGet(id){ try{ const r=await window.storage.get(`mm:queue:${id}`, true); return r?JSON.parse(r.value):null;}catch(e){return null;} }
-  async function mmList(){ try{ const r=await window.storage.list('mm:queue:', true); return r?r.keys:[]; }catch(e){return [];} }
-  async function mmDelete(id){ try{ await window.storage.delete(`mm:queue:${id}`, true);}catch(e){} }
+  // ---- matchmaking helpers (via Firebase) ----
+  async function mmSet(id, val){ try{ await fbdb.ref(`mmQueue/${id}`).set(val); }catch(e){} }
+  async function mmGet(id){ try{ const s=await fbdb.ref(`mmQueue/${id}`).once('value'); return s.exists()?s.val():null; }catch(e){return null;} }
+  async function mmList(){ try{ const s=await fbdb.ref('mmQueue').once('value'); return s.exists()?Object.keys(s.val()):[]; }catch(e){return [];} }
+  async function mmDelete(id){ try{ await fbdb.ref(`mmQueue/${id}`).remove(); }catch(e){} }
 
   // ---- geo math ----
   function haversine(lat1,lon1,lat2,lon2){
@@ -437,8 +482,12 @@
     }, 400);
   });
 
-  // ================= PROFILE SCREEN =================
+  // ================= AUTH SCREEN =================
   let pendingAvatar = null;
+  let authMode = 'signup'; // 'signup' | 'login'
+  let myUid = null;
+  const DEFAULT_STATS = {runs:0, meters:0, wins:0, losses:0, timeS:0, finishedMeters:0};
+
   $('uploadTrigger').addEventListener('click', ()=> $('avatarInput').click());
   $('avatarInput').addEventListener('change', (e)=>{
     const file = e.target.files[0]; if (!file) return;
@@ -456,33 +505,149 @@
     }; img.src = ev.target.result; };
     reader.readAsDataURL(file);
   });
-  function demoAuthFlow(providerName){
-    $('nameInput').focus();
-    $('nameInput').placeholder = `NAME (via ${providerName} demo)`;
-  }
-  $('googleBtn').addEventListener('click', ()=>demoAuthFlow('Google'));
-  $('facebookBtn').addEventListener('click', ()=>demoAuthFlow('Facebook'));
 
-  $('saveProfileBtn').addEventListener('click', async ()=>{
-    const name = $('nameInput').value.trim();
-    if (!name){ $('nameInput').focus(); return; }
-    profile = {name, avatar: pendingAvatar};
-    await saveProfile();
-    goHome();
+  function setAuthMode(mode){
+    authMode = mode;
+    $('signupFields').classList.toggle('hidden', mode==='login');
+    $('authSubmitBtn').textContent = mode==='signup' ? 'Create Account' : 'Log In';
+    $('authSub').textContent = mode==='signup' ? 'Create an account to get on the track.' : 'Welcome back — log in to race.';
+    $('authToggleLink').textContent = mode==='signup' ? 'Already have an account? Log in' : "New here? Create an account";
+    $('authError').classList.add('hidden');
+  }
+  $('authToggleLink').addEventListener('click', ()=> setAuthMode(authMode==='signup'?'login':'signup'));
+
+  function showAuthError(msg){ $('authError').textContent = msg; $('authError').classList.remove('hidden'); }
+
+  async function ensureUserDoc(uid, fallbackName, fallbackAvatar){
+    const snap = await fbdb.ref(`users/${uid}`).once('value');
+    if (snap.exists()){
+      const data = snap.val();
+      profile = {name:data.name, avatar:data.avatar||null};
+      return data.stats || DEFAULT_STATS;
+    } else {
+      profile = {name:fallbackName||'Runner', avatar:fallbackAvatar||null};
+      await fbdb.ref(`users/${uid}`).set({name:profile.name, avatar:profile.avatar, stats:DEFAULT_STATS});
+      return DEFAULT_STATS;
+    }
+  }
+
+  $('authSubmitBtn').addEventListener('click', async ()=>{
+    const email = $('emailInput').value.trim();
+    const password = $('passwordInput').value;
+    $('authError').classList.add('hidden');
+    if (!email || !password){ showAuthError('Enter an email and password.'); return; }
+    try{
+      if (authMode==='signup'){
+        const name = $('nameInput').value.trim();
+        if (!name){ showAuthError('Enter a display name.'); return; }
+        const cred = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        await ensureUserDoc(cred.user.uid, name, pendingAvatar);
+      } else {
+        await firebase.auth().signInWithEmailAndPassword(email, password);
+        // profile gets loaded by onAuthStateChanged
+      }
+    }catch(e){ showAuthError(e.message || 'Something went wrong.'); }
+  });
+
+  $('googleBtn').addEventListener('click', async ()=>{
+    try{
+      const provider = new firebase.auth.GoogleAuthProvider();
+      const result = await firebase.auth().signInWithPopup(provider);
+      await ensureUserDoc(result.user.uid, result.user.displayName, result.user.photoURL);
+    }catch(e){ showAuthError(e.message || 'Google sign-in failed.'); }
+  });
+  $('facebookBtn').addEventListener('click', async ()=>{
+    try{
+      const provider = new firebase.auth.FacebookAuthProvider();
+      const result = await firebase.auth().signInWithPopup(provider);
+      await ensureUserDoc(result.user.uid, result.user.displayName, result.user.photoURL);
+    }catch(e){ showAuthError('Facebook sign-in needs to be configured in your Firebase console first (Authentication → Sign-in method → Facebook, with a Facebook Developer App ID). Error: ' + (e.message||'')); }
+  });
+
+  let currentStats = DEFAULT_STATS;
+
+  firebase.auth().onAuthStateChanged(async (user)=>{
+    if (user){
+      myUid = user.uid;
+      currentStats = await ensureUserDoc(user.uid, user.displayName, user.photoURL);
+      goHome();
+    } else {
+      myUid = null;
+      show('profileScreen');
+    }
   });
 
   function goHome(){
     $('homeName').textContent = profile.name;
     paintAvatar($('homeAvatar'), profile);
     show('homeScreen');
+    loadLeaderboard();
   }
 
-  $('signOutBtn').addEventListener('click', ()=>{
-    $('nameInput').value=''; pendingAvatar=null;
-    $('avatarPreview').style.background='var(--track-red)';
-    $('avatarPreview').innerHTML='?';
-    show('profileScreen');
+  $('homeWho').addEventListener('click', ()=> showStats());
+  $('backHomeFromStatsBtn').addEventListener('click', ()=> show('homeScreen'));
+  $('signOutBtn2').addEventListener('click', async ()=>{
+    await firebase.auth().signOut();
+    $('nameInput').value=''; $('emailInput').value=''; $('passwordInput').value=''; pendingAvatar=null;
+    $('avatarPreview').style.background='var(--track-red)'; $('avatarPreview').innerHTML='?';
+    setAuthMode('signup');
   });
+
+  async function showStats(){
+    const snap = await fbdb.ref(`users/${myUid}/stats`).once('value');
+    const s = snap.exists() ? snap.val() : DEFAULT_STATS;
+    currentStats = s;
+    paintAvatar($('statsAvatar'), profile);
+    $('statsName').textContent = profile.name;
+    $('statRuns').textContent = s.runs||0;
+    $('statMeters').textContent = Math.round(s.meters||0) + ' m';
+    $('statRecord').textContent = `${s.wins||0}–${s.losses||0}`;
+    if (s.finishedMeters>0){
+      const paceMinPerKm = (s.timeS / s.finishedMeters) * 1000/60;
+      const m = Math.floor(paceMinPerKm), sec = Math.round((paceMinPerKm-m)*60);
+      $('statPace').textContent = `${m}:${sec.toString().padStart(2,'0')}`;
+    } else { $('statPace').textContent = '—'; }
+    show('statsScreen');
+  }
+
+  async function recordRaceResult(distanceRun, won, didFinish, timeSeconds){
+    if (!myUid) return;
+    try{
+      const snap = await fbdb.ref(`users/${myUid}/stats`).once('value');
+      const s = snap.exists() ? snap.val() : {...DEFAULT_STATS};
+      s.runs = (s.runs||0) + 1;
+      s.meters = (s.meters||0) + Math.max(0, distanceRun||0);
+      if (won) s.wins = (s.wins||0)+1; else s.losses = (s.losses||0)+1;
+      if (didFinish && timeSeconds){ s.timeS = (s.timeS||0) + timeSeconds; s.finishedMeters = (s.finishedMeters||0) + TRACK_LENGTH; }
+      await fbdb.ref(`users/${myUid}/stats`).set(s);
+      currentStats = s;
+
+      const monthKey = new Date().toISOString().slice(0,7); // YYYY-MM
+      const mSnap = await fbdb.ref(`monthlyStats/${monthKey}/${myUid}`).once('value');
+      const prevMeters = mSnap.exists() ? (mSnap.val().meters||0) : 0;
+      await fbdb.ref(`monthlyStats/${monthKey}/${myUid}`).set({name:profile.name, avatar:profile.avatar||null, meters: prevMeters + Math.max(0, distanceRun||0)});
+    }catch(e){}
+  }
+
+  async function loadLeaderboard(){
+    const box = $('leaderboardBox');
+    box.innerHTML = '<div class="lb-empty">Loading…</div>';
+    try{
+      const monthKey = new Date().toISOString().slice(0,7);
+      const snap = await fbdb.ref(`monthlyStats/${monthKey}`).orderByChild('meters').limitToLast(3).once('value');
+      if (!snap.exists()){ box.innerHTML = '<div class="lb-empty">No runs logged yet this month — be the first!</div>'; return; }
+      const rows = [];
+      snap.forEach(child => rows.push(child.val()));
+      rows.sort((a,b)=> (b.meters||0)-(a.meters||0));
+      box.innerHTML = rows.map((r,i)=>`
+        <div class="lb-row">
+          <div class="lb-rank">#${i+1}</div>
+          <div class="avatar" style="width:32px;height:32px;font-size:12px;background:${r.avatar?'transparent':colorFor(r.name)}">${r.avatar?`<img src="${r.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:initials(r.name)}</div>
+          <div class="lb-name">${(r.name||'Runner')}</div>
+          <div class="lb-meters">${Math.round(r.meters||0)} m</div>
+        </div>`).join('');
+    }catch(e){ box.innerHTML = '<div class="lb-empty">Couldn\'t load leaderboard.</div>'; }
+  }
 
   // ================= HOME SCREEN =================
   $('friendCard').addEventListener('click', ()=> show('friendSetupScreen'));
@@ -492,7 +657,7 @@
   $('laneBBtn').addEventListener('click', ()=>{ myLane='B'; $('laneBBtn').classList.add('active'); $('laneABtn').classList.remove('active'); });
 
   $('joinFriendBtn').addEventListener('click', async ()=>{
-    const val = $('raceCode').value.trim().toUpperCase();
+    const val = $('raceCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
     if (!val){ $('raceCode').focus(); return; }
     raceCode = val; isBot = false;
     await writeLane({distance:0, speed:0, finished:false, finishTimeS:null, name:profile.name, avatar:profile.avatar});
@@ -534,8 +699,7 @@
 
     const keys = await mmList();
     let candidateId = null, candidateData = null;
-    for (const k of keys){
-      const id = k.replace('mm:queue:','');
+    for (const id of keys){
       if (id === myId) continue;
       const data = await mmGet(id);
       if (data && data.status==='waiting' && (Date.now()-data.t) < 20000){ candidateId = id; candidateData = data; break; }
@@ -695,6 +859,8 @@
     $('msgInput').value='';
     show('finishScreen');
 
+    recordRaceResult(meData.distance||0, winnerIsMe, !!meData.finished, meData.finishTimeS);
+
     if (isBot){
       setTimeout(()=>{
         $('msgIncomingAvatar').style.background = 'var(--slate-dim)';
@@ -742,11 +908,7 @@
     show('homeScreen');
   });
 
-  // ---- init ----
-  (async function init(){
-    await loadProfile();
-    if (profile && profile.name){ goHome(); } else { show('profileScreen'); }
-  })();
+  // ---- init: onAuthStateChanged (registered above) handles showing the right screen ----
 })();
 </script>
 </body>
