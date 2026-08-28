@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>PACEDUEL — 400</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --track-red:#a9402e;
+    --track-red-dark:#7a2c1f;
+    --lane-white:#f2ecdd;
+    --night:#14181a;
+    --night-2:#1c2224;
+    --night-3:#242b2d;
+    --lime:#c6d94d;
+    --slate:#8a9296;
+    --slate-dim:#5b6266;
+    --danger:#d9614d;
+    --blue:#4c8bf5;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--night); color:var(--lane-white);
+    font-family:'Oswald',sans-serif; overflow-x:hidden; min-height:100vh;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    text-align:center;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .screen{ min-height:100vh; display:flex; flex-direction:column; padding:28px 20px 24px; max-width:520px; margin:0 auto; }
+  .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.22em; color:var(--track-red); text-transform:uppercase; font-weight:600;}
+  h1{ font-size:46px; line-height:.95; font-weight:700; letter-spacing:-.01em; margin:6px 0 4px; text-transform:uppercase;}
+  h1 span{color:var(--track-red);}
+  .sub{color:var(--slate); font-size:15px; margin:0 0 24px; max-width:40ch;}
+  .field{margin-bottom:16px;}
+  .field label{ display:block; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--slate); margin-bottom:8px;}
+  input[type=text], input[type=password], textarea{
+    width:100%; background:var(--night-2); border:1px solid #2a3134; color:var(--lane-white);
+    font-family:'IBM Plex Mono',monospace; font-size:16px; padding:14px 16px; border-radius:2px; outline:none;
+    text-align:center;
+  }
+  input[type=text]{letter-spacing:.1em; text-transform:uppercase; font-size:18px;}
+  input[type=password]{letter-spacing:.15em; font-size:18px;}
+  input[type=text]:focus, input[type=password]:focus, textarea:focus{border-color:var(--track-red);}
+  textarea{resize:none; text-transform:none; letter-spacing:normal; font-family:'Oswald'; font-size:15px; min-height:70px;}
+  .btn{ border:none; border-radius:2px; padding:16px 20px; font-family:'Oswald'; font-weight:600; font-size:16px; letter-spacing:.03em; text-transform:uppercase; cursor:pointer; width:100%;}
+  .btn-primary{background:var(--track-red); color:#fff;}
+  .btn-primary:active{background:var(--track-red-dark);}
+  .btn-primary:disabled{background:#33393b; color:var(--slate-dim);}
+  .btn-ghost{background:transparent; border:1px solid #2a3134; color:var(--slate); margin-top:10px;}
+  .btn-google{background:#fff; color:#3c4043; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px;}
+  .btn-facebook{background:#1877f2; color:#fff; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px;}
+  .btn-sm{width:auto; padding:10px 16px; font-size:13px;}
+  .note{font-size:12px; color:var(--slate-dim); margin-top:18px; line-height:1.6;}
+  .note b{color:var(--slate);}
+  .divider{display:flex; align-items:center; gap:12px; margin:16px 0; color:var(--slate-dim); font-family:'IBM Plex Mono'; font-size:11px; letter-spacing:.14em;}
+  .divider::before, .divider::after{content:''; flex:1; height:1px; background:#2a3134;}
+  .spacer{flex:1;}
+  .hidden{display:none !important;}
+
+  /* avatar */
+  .avatar{width:44px; height:44px; border-radius:50%; object-fit:cover; background:var(--track-red); display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono'; font-weight:600; font-size:16px; color:#fff; flex-shrink:0;}
+  .avatar.lg{width:76px; height:76px; font-size:26px;}
+  .avatar-picker{display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:18px;}
+  .avatar-upload-btn{font-family:'IBM Plex Mono'; font-size:12px; color:var(--slate); text-decoration:underline; cursor:pointer;}
+
+  /* home cards */
+  .card{
+    background:linear-gradient(155deg, #bf4d38 0%, var(--track-red) 45%, var(--track-red-dark) 100%);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:10px; padding:24px 22px; margin-bottom:16px; cursor:pointer;
+    box-shadow:0 10px 26px rgba(169,64,46,.35), inset 0 1px 0 rgba(255,255,255,.15);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .card:active{ transform:scale(0.98); box-shadow:0 4px 14px rgba(169,64,46,.3), inset 0 1px 0 rgba(255,255,255,.1);}
+  .card .card-title{font-size:22px; font-weight:700; text-transform:uppercase; color:#fff; letter-spacing:.02em; text-align:center;}
+  .card .card-sub{color:rgba(255,255,255,.85); font-size:13px; margin-top:6px; line-height:1.45;}
+  .who{display:flex; align-items:center; gap:12px; margin-bottom:16px;}
+  .who .name{font-weight:600; font-size:15px;}
+  .who .sign-out{font-family:'IBM Plex Mono'; font-size:11px; color:var(--slate-dim); text-decoration:underline; cursor:pointer; margin-left:auto;}
+
+  /* lane pick */
+  .lane-pick{display:flex; gap:10px;}
+  .lane-btn{flex:1; padding:16px 10px; border-radius:2px; border:1px solid #2a3134; background:var(--night-2); color:var(--lane-white); font-family:'Oswald'; font-weight:600; font-size:16px; text-align:center; cursor:pointer;}
+  .lane-btn.active{border-color:var(--track-red); background:rgba(169,64,46,.18); color:#fff;}
+  .lane-btn .tag{display:block; font-family:'IBM Plex Mono'; font-size:10px; letter-spacing:.14em; color:var(--slate); margin-top:4px;}
+
+  /* waiting */
+  .pulse-dot{width:10px;height:10px;border-radius:50%;background:var(--lime);display:inline-block;margin-right:8px;animation:pulse 1.2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+  .count-num{font-size:140px; font-weight:700; text-align:center; margin:auto; font-family:'IBM Plex Mono'; color:var(--lime);}
+
+  /* race screen */
+  .race-header{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:18px;}
+  .race-header .code{font-family:'IBM Plex Mono'; font-size:12px; letter-spacing:.14em; color:var(--slate);}
+  .elapsed{font-family:'IBM Plex Mono'; font-size:22px; color:var(--lane-white);}
+  .gps-warn{display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--danger); background:rgba(217,97,77,.1); border:1px solid rgba(217,97,77,.3); padding:10px 12px; border-radius:2px; margin-bottom:14px;}
+
+  .lane-panel{background:var(--night-2); border-radius:3px; padding:16px 16px 14px; margin-bottom:14px; border:1px solid #22282a;}
+  .lane-panel.leading{border-color:var(--lime);}
+  .lane-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:10px;}
+  .lane-who{display:flex; align-items:center; gap:10px; min-width:0;}
+  .lane-name{font-weight:600; font-size:14px; text-transform:uppercase; letter-spacing:.03em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .lane-name .you{color:var(--track-red); font-family:'IBM Plex Mono'; font-size:9px; margin-left:6px; letter-spacing:.1em;}
+  .lane-dist{font-family:'IBM Plex Mono'; font-size:14px; color:var(--slate); white-space:nowrap;}
+  .track{position:relative; height:14px; background:#0e1112; border-radius:2px; margin-bottom:10px;}
+  .track .fill{position:absolute; top:0; left:0; height:100%; background:var(--track-red); border-radius:2px; transition:width .4s linear;}
+  .track.leading .fill{background:var(--lime);}
+  .lane-stats{display:flex; gap:18px;}
+  .stat{flex:1;}
+  .stat .val{font-family:'IBM Plex Mono'; font-size:18px; font-weight:500;}
+  .stat .lbl{font-family:'IBM Plex Mono'; font-size:9px; color:var(--slate-dim); letter-spacing:.12em; text-transform:uppercase; margin-top:2px;}
+  .gap-banner{text-align:center; padding:14px; margin:6px 0 18px; border-radius:3px; background:rgba(198,217,77,.08); border:1px dashed rgba(198,217,77,.4); font-family:'IBM Plex Mono'; font-size:14px; color:var(--lime);}
+
+  /* finish screen */
+  .finish-hero{text-align:center; margin-bottom:22px;}
+  .finish-hero .win{font-size:30px; font-weight:700; text-transform:uppercase; color:var(--lime);}
+  .finish-hero .time{font-family:'IBM Plex Mono'; font-size:14px; color:var(--slate); margin-top:6px;}
+  .vs-row{display:flex; align-items:center; gap:16px; margin-bottom:22px;}
+  .vs-card{flex:1; background:var(--night-2); border:1px solid #22282a; border-radius:3px; padding:16px; text-align:center;}
+  .vs-card.win{border-color:var(--lime);}
+  .vs-card .name{font-weight:600; margin:10px 0 2px; font-size:14px;}
+  .vs-card .t{font-family:'IBM Plex Mono'; font-size:13px; color:var(--slate);}
+  .vs-x{font-family:'IBM Plex Mono'; color:var(--slate-dim); font-size:13px;}
+  .msg-box{background:var(--night-2); border:1px solid #22282a; border-radius:3px; padding:16px; margin-bottom:14px;}
+  .msg-box .lbl{font-family:'IBM Plex Mono'; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--slate); margin-bottom:10px;}
+  .chat-empty{color:var(--slate-dim); font-size:12px; text-align:left;}
+  .chat-msg{display:flex; gap:8px; align-items:flex-start; text-align:left;}
+  .chat-msg.mine{flex-direction:row-reverse; text-align:right;}
+  .chat-avatar-sm{width:26px; height:26px; border-radius:50%; flex-shrink:0; background:var(--track-red); display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono'; font-size:10px; font-weight:600; color:#fff; overflow:hidden;}
+  .chat-bubble{background:var(--night-3); border:1px solid #2a3134; border-radius:12px; padding:9px 13px; font-size:13px; line-height:1.4; max-width:74%; word-wrap:break-word;}
+  .chat-msg.mine .chat-bubble{background:rgba(169,64,46,.22); border-color:var(--track-red);}
+  .chat-photo{max-width:150px; border-radius:8px; display:block; margin-top:4px;}
+  .chat-name{font-family:'IBM Plex Mono'; font-size:9px; color:var(--slate-dim); letter-spacing:.08em; margin-bottom:3px;}
+
+  .lb-row{display:flex; align-items:center; gap:12px; background:var(--night-2); border:1px solid #22282a; border-radius:3px; padding:10px 14px; margin-bottom:8px; text-align:left;}
+  .lb-rank{font-family:'IBM Plex Mono'; font-weight:600; color:var(--lime); width:18px;}
+  .lb-name{flex:1; font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .lb-meters{font-family:'IBM Plex Mono'; font-size:12px; color:var(--slate);}
+  .lb-empty{color:var(--slate-dim); font-size:13px; margin-bottom:8px;}
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div class="screen" id="profileScreen">
+  <div class="eyebrow">Live GPS · 400M Head to Head</div>
+  <h1>Pace<span>duel.</span></h1>
+  <p class="sub" id="authSub">Create an account to get on the track.</p>
+
+  <button class="btn btn-google" id="googleBtn">Continue with Google</button>
+  <button class="btn btn-facebook" id="facebookBtn">Continue with Facebook</button>
+
+  <div class="field" id="policyRowSocial" style="display:flex; align-items:flex-start; gap:10px; text-align:left; margin-top:2px;">
+    <input type="checkbox" id="policyCheckboxSocial" style="margin-top:3px; width:16px; height:16px; flex-shrink:0; accent-color:var(--track-red);">
+    <label for="policyCheckboxSocial" style="font-family:'Oswald'; font-size:13px; color:var(--slate); text-transform:none; letter-spacing:normal; cursor:pointer;">
+      I have read and agree to the <a href="policy.html" target="_blank" rel="noopener" style="color:var(--track-red); text-decoration:underline;">User Policy</a>.
+    </label>
+  </div>
+
+  <div class="divider" id="authDivider">OR WITH EMAIL</div>
+
+  <div id="signupFields">
+    <div class="avatar-picker">
+      <div class="avatar lg" id="avatarPreview">?</div>
+      <div>
+        <div class="avatar-upload-btn" id="uploadTrigger">Upload photo</div>
+        <input type="file" accept="image/*" id="avatarInput" class="hidden">
+      </div>
+    </div>
+    <div class="field">
+      <label>Display Name</label>
+      <input type="text" id="nameInput" maxlength="18" placeholder="YOUR NAME" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Email</label>
+    <input type="text" id="emailInput" placeholder="YOU@EMAIL.COM" autocomplete="off" autocapitalize="off" style="text-transform:none;">
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input type="password" id="passwordInput" placeholder="AT LEAST 6 CHARACTERS" autocomplete="off" style="text-transform:none;">
+  </div>
+
+  <div class="field" id="policyRow" style="display:flex; align-items:flex-start; gap:10px; text-align:left;">
+    <input type="checkbox" id="policyCheckboxEmail" style="margin-top:3px; width:16px; height:16px; flex-shrink:0; accent-color:var(--track-red);">
+    <label for="policyCheckboxEmail" style="font-family:'Oswald'; font-size:13px; color:var(--slate); text-transform:none; letter-spacing:normal; cursor:pointer;">
+      I have read and agree to the <a href="policy.html" target="_blank" rel="noopener" style="color:var(--track-red); text-decoration:underline;">User Policy</a>.
+    </label>
+  </div>
+
+  <p class="note hidden" id="authError" style="color:var(--danger); margin-top:0;"></p>
+
+  <button class="btn btn-primary" id="authSubmitBtn">Create Account</button>
+  <div class="avatar-upload-btn" id="authToggleLink" style="margin-top:14px;">Already have an account? Log in</div>
+</div>
+
+<!-- STATS SCREEN (own or another runner's) -->
+<div class="screen hidden" id="statsScreen">
+  <div class="eyebrow" id="statsEyebrow">Your Profile</div>
+  <div class="avatar lg" id="statsAvatar" style="margin:14px auto;">?</div>
+  <div class="avatar-upload-btn" id="statsUploadTrigger">Update photo</div>
+  <input type="file" accept="image/*" id="statsAvatarInput" class="hidden">
+  <h1 style="font-size:30px; margin-top:14px;" id="statsName">Runner</h1>
+  <button class="btn btn-ghost btn-sm" id="shareProfileBtn" style="width:auto; padding:8px 16px; margin:0 auto 14px;">🔗 Copy Profile Link</button>
+
+  <div class="msg-box" id="statusBox" style="text-align:left;">
+    <div class="lbl">Status</div>
+    <div id="statusEditRow">
+      <textarea id="statusInput" maxlength="150" placeholder="What's your running status?"></textarea>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+        <div class="chat-name" id="statusCharCount">0/150</div>
+        <button class="btn btn-primary btn-sm" id="saveStatusBtn" style="width:auto; padding:8px 16px;">Save</button>
+      </div>
+    </div>
+    <div class="hidden" id="statusReadOnly" style="font-size:14px; line-height:1.5; color:var(--lane-white);"></div>
+  </div>
+
+  <div class="vs-row" style="margin-top:20px;">
+    <div class="vs-card"><div class="t" id="statRuns">0</div><div class="card-sub">Total Runs</div></div>
+    <div class="vs-card"><div class="t" id="statMeters">0 m</div><div class="card-sub">Total Distance</div></div>
+  </div>
+  <div class="vs-row">
+    <div class="vs-card"><div class="t" id="statRecord">0–0</div><div class="card-sub">Wins–Losses</div></div>
+    <div class="vs-card"><div class="t" id="statPace">—</div><div class="card-sub">Avg Pace /km</div></div>
+  </div>
+
+  <div id="historySection">
+    <div class="divider">RECENT RUNS</div>
+    <div id="historyBox"></div>
+  </div>
+
+  <div class="spacer"></div>
+  <button class="btn btn-ghost" id="signOutBtn2">Log Out</button>
+  <button class="btn btn-ghost" id="backHomeFromStatsBtn">Back</button>
+  <button class="btn btn-ghost" id="deleteAccountBtn" style="color:var(--danger); border-color:var(--danger); margin-top:18px;">Delete Account</button>
+</div>
+
+<!-- HOME SCREEN -->
+<div class="screen hidden" id="homeScreen">
+  <div class="mono" style="font-size:11px; letter-spacing:.28em; color:var(--slate-dim); margin-bottom:18px;">PACEDUEL</div>
+  <div class="who" id="homeWho" style="cursor:pointer;">
+    <div class="avatar" id="homeAvatar">?</div>
+    <div class="name" id="homeName">—</div>
+  </div>
+  <div class="eyebrow">400M · CHOOSE YOUR RACE</div>
+  <h1 style="font-size:36px; margin-bottom:40px;">Ready to<br>run<span>?</span></h1>
+
+  <div class="card" id="matchCard">
+    <div class="card-title">Race Now</div>
+    <div class="card-sub">Get matched with a random runner instantly, or a 7:00/km pacer bot if no one's around.</div>
+  </div>
+  <div class="card" id="friendCard">
+    <div class="card-title">Race a Friend</div>
+    <div class="card-sub">Share a code, pick a track, race head-to-head.</div>
+  </div>
+
+  <div class="divider">TOP RUNNERS THIS MONTH</div>
+  <div id="leaderboardBox"></div>
+</div>
+
+<!-- FRIEND SETUP SCREEN -->
+<div class="screen hidden" id="friendSetupScreen">
+  <div class="eyebrow">Race a Friend</div>
+  <h1 style="font-size:36px;">Set up<br>the race</h1>
+  <div class="field">
+    <label>Race Code (share this with your friend)</label>
+    <input type="text" id="raceCode" maxlength="8" placeholder="e.g. FALCON7" autocomplete="off" autocapitalize="characters">
+  </div>
+  <div class="field">
+    <label>Choose Track</label>
+    <div class="lane-pick">
+      <div class="lane-btn active" id="laneABtn" data-lane="A">Track A<span class="tag">RED</span></div>
+      <div class="lane-btn" id="laneBBtn" data-lane="B">Track B<span class="tag">LIME</span></div>
+    </div>
+  </div>
+  <button class="btn btn-primary" id="joinFriendBtn">Join Race</button>
+  <button class="btn btn-ghost" id="backHomeFromFriendBtn">Back</button>
+</div>
+
+<!-- WAITING SCREEN (shared by friend + matchmaking) -->
+<div class="screen hidden" id="waitScreen">
+  <div class="spacer"></div>
+  <div style="text-align:center;">
+    <div class="eyebrow" style="margin-bottom:14px;"><span class="pulse-dot"></span><span id="waitLabel">SEARCHING</span></div>
+    <div class="mono" id="waitCode" style="font-size:24px; letter-spacing:.2em; margin-bottom:10px;"></div>
+    <div class="sub" style="margin:0 auto;" id="waitSub"></div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn btn-primary hidden" id="startCountdownBtn">Start Countdown</button>
+  <button class="btn btn-ghost" id="cancelWaitBtn">Cancel</button>
+</div>
+
+<!-- COUNTDOWN SCREEN -->
+<div class="screen hidden" id="countScreen">
+  <div class="spacer"></div>
+  <div class="count-num" id="countNum">10</div>
+  <p class="note" style="max-width:36ch; margin:20px auto 0;">
+    <b>Stand still until GO.</b> Any movement before the start, an average pace faster than <b>1:48/km</b>, or a 400m time under <b>~43s</b> (faster than the human world record) will auto-disqualify that run as a loss — this is to stop cheating with a bike, car, or head start.
+  </p>
+  <div class="spacer"></div>
+</div>
+
+<!-- RACE SCREEN -->
+<div class="screen hidden" id="raceScreen">
+  <div class="race-header">
+    <div class="code mono" id="raceCodeLabel"></div>
+    <div class="elapsed mono" id="elapsedTime">0.0s</div>
+  </div>
+  <div class="gps-warn hidden" id="gpsWarn">
+    <div>
+      <div id="gpsWarnText">Weak GPS signal — readings may lag or jump.</div>
+      <div class="avatar-upload-btn hidden" id="simulateBtn" style="margin-top:8px; color:var(--lime);">No GPS available — tap to simulate your run instead</div>
+    </div>
+  </div>
+
+  <div class="lane-panel" id="panelA">
+    <div class="lane-top">
+      <div class="lane-who"><div class="avatar" id="avatarA">A</div><div class="lane-name" id="nameA">Track A<span class="you hidden" id="tagA">YOU</span></div></div>
+      <div class="lane-dist mono" id="distA">0 m</div>
+    </div>
+    <div class="track" id="trackA"><div class="fill" id="fillA" style="width:0%"></div></div>
+    <div class="lane-stats">
+      <div class="stat"><div class="val mono" id="speedA">0.0</div><div class="lbl">m/s</div></div>
+      <div class="stat"><div class="val mono" id="paceA">—</div><div class="lbl">min/km</div></div>
+    </div>
+  </div>
+
+  <div class="gap-banner" id="gapBanner">Gap: —</div>
+  <div class="gap-banner hidden" id="waitingBanner" style="border-color:var(--track-red); border-style:solid;">
+    <div id="waitingBannerText">You finished! Tracking your opponent live…</div>
+    <button class="btn btn-ghost btn-sm" id="forceFinishBtn" style="margin-top:10px;">End Race Now (opponent DNF)</button>
+  </div>
+
+  <div class="lane-panel" id="panelB">
+    <div class="lane-top">
+      <div class="lane-who"><div class="avatar" id="avatarB">B</div><div class="lane-name" id="nameB">Track B<span class="you hidden" id="tagB">YOU</span></div></div>
+      <div class="lane-dist mono" id="distB">0 m</div>
+    </div>
+    <div class="track" id="trackB"><div class="fill" id="fillB" style="width:0%"></div></div>
+    <div class="lane-stats">
+      <div class="stat"><div class="val mono" id="speedB">0.0</div><div class="lbl">m/s</div></div>
+      <div class="stat"><div class="val mono" id="paceB">—</div><div class="lbl">min/km</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FINISH SCREEN -->
+<div class="screen hidden" id="finishScreen">
+  <div class="eyebrow">RACE RESULT</div>
+  <div class="finish-hero">
+    <div class="win" id="finishWinner">—</div>
+    <div class="time" id="finishTimeText"></div>
+  </div>
+
+  <div class="vs-row">
+    <div class="vs-card" id="finCardMe">
+      <div class="avatar lg" id="finAvatarMe" style="margin:0 auto;">?</div>
+      <div class="name" id="finNameMe">You</div>
+      <div class="t" id="finTimeMe">—</div>
+    </div>
+    <div class="vs-x">VS</div>
+    <div class="vs-card" id="finCardOpp">
+      <div class="avatar lg" id="finAvatarOpp" style="margin:0 auto;">?</div>
+      <div class="name" id="finNameOpp">Opponent</div>
+      <div class="t" id="finTimeOpp">—</div>
+    </div>
+  </div>
+
+  <div class="msg-box">
+    <div class="lbl">Chat</div>
+    <div id="chatThread" style="display:flex; flex-direction:column; gap:8px; max-height:260px; overflow-y:auto; margin-bottom:12px;"></div>
+    <textarea id="msgInput" maxlength="200" placeholder="Good race! Rematch?"></textarea>
+    <div style="display:flex; gap:8px; margin-top:10px;">
+      <button class="btn btn-primary btn-sm" id="sendMsgBtn" style="flex:1;">Send</button>
+      <button class="btn btn-ghost btn-sm" id="sendSelfieBtn" style="flex:1;">📸 Send Selfie</button>
+    </div>
+    <input type="file" accept="image/*" capture="user" id="selfieInput" class="hidden">
+  </div>
+
+  <div class="spacer"></div>
+  <div id="finishActionRow">
+    <button class="btn btn-primary" id="raceAgainBtn">Race Again</button>
+    <button class="btn btn-ghost" id="homeFromFinishBtn">Home</button>
+  </div>
+  <div class="hidden" id="finishBackRow">
+    <button class="btn btn-ghost" id="backToProfileFromFinishBtn">Back to Profile</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAiD17kFwb8XMSlT0eY_huFOUQD0YpoiWw",
+    authDomain: "trackmatch-ff640.firebaseapp.com",
+    databaseURL: "https://trackmatch-ff640-default-rtdb.firebaseio.com",
+    projectId: "trackmatch-ff640",
+    storageBucket: "trackmatch-ff640.firebasestorage.app",
+    messagingSenderId: "480661648214",
+    appId: "1:480661648214:web:6ebaff6b9b6f7fa1095cf7",
+    measurementId: "G-CFHBX9VPN9"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const fbdb = firebase.database();
+</script>
+<script>
+(function(){
+  const TRACK_LENGTH = 400;
+  const BOT_PACE_SPEED = 1000/(7*60); // 7:00/km -> m/s ≈ 2.381
+  const BOT_TIMEOUT_MS = 9000;
+
+  const $ = id => document.getElementById(id);
+  const screens = ['profileScreen','statsScreen','homeScreen','friendSetupScreen','waitScreen','countScreen','raceScreen','finishScreen'];
+  function show(id){ screens.forEach(s => $(s).classList.toggle('hidden', s!==id)); }
+
+  let profile = {name:'', avatar:null};
+  let myId = null;
+  let raceCode = '';
+  let myLane = 'A';
+  let isBot = false;
+  let opponentProfile = {name:'Opponent', avatar:null};
+
+  let watchId=null, lastFix=null, distanceM=0, currentSpeed=0, startAt=null, finished=false, finishTimeS=null;
+  let raceLoopTimer=null, elapsedTimer=null, pollTimer=null;
+  let botDistance=0;
+
+  function genId(){ return Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-4); }
+  function initials(name){ return (name||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase() || '?'; }
+  function colorFor(name){
+    const colors = ['#a9402e','#4c8bf5','#c6d94d','#8a5cf6','#e07a3f','#3fae7a'];
+    let h=0; for (const c of (name||'x')) h = (h*31 + c.charCodeAt(0)) % colors.length;
+    return colors[h];
+  }
+  function avatarHTML(p){
+    if (p.avatar) return `<img src="${p.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    return initials(p.name);
+  }
+  function paintAvatar(el, p){
+    el.style.background = p.avatar ? 'transparent' : colorFor(p.name);
+    el.innerHTML = avatarHTML(p);
+  }
+
+  // ---- storage helpers (shared, via Firebase Realtime Database) ----
+  async function writeLane(data){ try{ await fbdb.ref(`races/${raceCode}/lane${myLane}`).set(data); }catch(e){} }
+  async function readLane(lane){ try{ const s=await fbdb.ref(`races/${raceCode}/lane${lane}`).once('value'); return s.exists()?s.val():null; }catch(e){return null;} }
+  async function writeState(o){ try{ await fbdb.ref(`races/${raceCode}/state`).set(o); }catch(e){} }
+  async function readState(){ try{ const s=await fbdb.ref(`races/${raceCode}/state`).once('value'); return s.exists()?s.val():null; }catch(e){return null;} }
+
+  // ---- chat (real multi-message thread, per race code, real-time via Firebase listener) ----
+  let chatRef = null;
+  function chatPath(){ return fbdb.ref(`races/${raceCode}/chat`); }
+  async function sendChatMessage(payload){
+    try{ await chatPath().push({from:myLane, name:profile.name, avatar:profile.avatar||null, t:Date.now(), ...payload}); return true; }
+    catch(e){ return false; }
+  }
+
+  // ---- matchmaking helpers (via Firebase) ----
+  async function mmSet(id, val){ try{ await fbdb.ref(`mmQueue/${id}`).set(val); }catch(e){} }
+  async function mmGet(id){ try{ const s=await fbdb.ref(`mmQueue/${id}`).once('value'); return s.exists()?s.val():null; }catch(e){return null;} }
+  async function mmList(){ try{ const s=await fbdb.ref('mmQueue').once('value'); return s.exists()?Object.keys(s.val()):[]; }catch(e){return [];} }
+  async function mmDelete(id){ try{ await fbdb.ref(`mmQueue/${id}`).remove(); }catch(e){} }
+
+  // ---- geo math ----
+  function haversine(lat1,lon1,lat2,lon2){
+    const R=6371000, toRad=d=>d*Math.PI/180;
+    const dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1);
+    const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+    return R*2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+  // ---- anti-cheat thresholds ----
+  const MIN_LEGIT_FINISH_S = 43.0;           // ~ current human 400m world record (43.03s) — faster than this is flagged
+  const MAX_LEGIT_PACE_SEC_PER_KM = 108;     // 1:48 min/km, equivalent floor for the same reason
+  const START_SPEED_LIMIT_MPS = 6/3.6;       // 6 km/h — allowance above "standing still" for GPS jitter
+  let cheatFlagged = false, cheatReason = '', startSpeedChecked = false;
+
+  function onPosition(pos){
+    const {latitude, longitude, speed, accuracy} = pos.coords;
+    const t = pos.timestamp;
+    $('gpsWarn').classList.toggle('hidden', !(accuracy && accuracy > 12));
+    if (!finished && typeof speed === 'number' && speed !== null && speed >= 0) currentSpeed = speed;
+
+    // Catch runners already moving (bike, car, head start) the instant the race starts
+    if (!startSpeedChecked && startAt && Date.now() >= startAt){
+      startSpeedChecked = true;
+      if (typeof speed === 'number' && speed !== null && speed > START_SPEED_LIMIT_MPS){
+        cheatFlagged = true;
+        cheatReason = 'was already moving faster than walking pace at the start';
+      }
+    }
+
+    if (lastFix && !finished){
+      const d = haversine(lastFix.lat, lastFix.lon, latitude, longitude);
+      if (d > 0.5){
+        distanceM += d;
+        if (typeof speed !== 'number' || speed === null){
+          const dt=(t-lastFix.t)/1000; if (dt>0) currentSpeed = d/dt;
+        }
+      }
+    }
+    lastFix = {lat:latitude, lon:longitude, t};
+    if (!finished && startAt && Date.now() >= startAt && distanceM >= TRACK_LENGTH){
+      distanceM = TRACK_LENGTH; // clamp exactly — GPS jumps shouldn't push this past 400
+      const elapsed = (Date.now()-startAt)/1000;
+      const paceSecPerKm = elapsed / (TRACK_LENGTH/1000);
+      if (elapsed < MIN_LEGIT_FINISH_S || paceSecPerKm < MAX_LEGIT_PACE_SEC_PER_KM){
+        cheatFlagged = true;
+        cheatReason = cheatReason || 'finished faster than a human 400m world record pace';
+      }
+      finished = true; finishTimeS = elapsed;
+    }
+  }
+  let simulateMode = false, simulateTimer = null;
+
+  function gpsErrorMessage(err){
+    if (!err) return 'Location unavailable — tap below to simulate your run instead.';
+    switch(err.code){
+      case 1: return "Location permission denied. Check your browser/site settings and allow location for this page — then reload.";
+      case 2: return "Position unavailable. If you're indoors, testing on desktop, or viewing this inside a preview/sandbox, GPS may be blocked entirely.";
+      case 3: return "Location request timed out — signal may be too weak here.";
+      default: return 'Location error — tap below to simulate your run instead.';
+    }
+  }
+
+  function startGPS(){
+    if (!navigator.geolocation){
+      $('gpsWarnText').textContent = 'This browser has no Geolocation support.';
+      $('gpsWarn').classList.remove('hidden');
+      $('simulateBtn').classList.remove('hidden');
+      return;
+    }
+    watchId = navigator.geolocation.watchPosition(onPosition, (err)=>{
+      $('gpsWarnText').textContent = gpsErrorMessage(err);
+      $('gpsWarn').classList.remove('hidden');
+      $('simulateBtn').classList.remove('hidden');
+    }, {enableHighAccuracy:true, maximumAge:500, timeout:8000});
+
+    // If no real position arrives within 6s, offer the simulate fallback proactively
+    setTimeout(()=>{
+      if (!lastFix && !simulateMode){
+        $('gpsWarnText').textContent = "No GPS fix yet. If you're testing indoors, on desktop, or inside a preview/sandbox, real GPS may not work here.";
+        $('gpsWarn').classList.remove('hidden');
+        $('simulateBtn').classList.remove('hidden');
+      }
+    }, 6000);
+  }
+  function stopGPS(){
+    if (watchId!==null){ navigator.geolocation.clearWatch(watchId); watchId=null; }
+    if (simulateTimer){ clearInterval(simulateTimer); simulateTimer=null; }
+  }
+
+  $('simulateBtn').addEventListener('click', ()=>{
+    if (simulateMode) return;
+    simulateMode = true;
+    if (watchId!==null){ navigator.geolocation.clearWatch(watchId); watchId=null; }
+    $('gpsWarnText').textContent = 'Simulating your run (real GPS not in use).';
+    $('simulateBtn').classList.add('hidden');
+    const baseSpeed = 3.4; // moderate jogging pace, m/s
+    let simStart = Date.now();
+    simulateTimer = setInterval(()=>{
+      if (!startAt || Date.now() < startAt) return;
+      const e = (Date.now()-simStart)/1000;
+      const wobble = 1 + Math.sin(e/2.5)*0.08;
+      currentSpeed = baseSpeed*wobble;
+      distanceM += currentSpeed*0.4; // matches the 400ms tick below
+      if (!finished && distanceM >= TRACK_LENGTH){ finished = true; finishTimeS = (Date.now()-startAt)/1000; }
+    }, 400);
+  });
+
+  // ================= AUTH SCREEN =================
+  let pendingAvatar = null;
+  let authMode = 'signup'; // 'signup' | 'login'
+  let myUid = null;
+  let viewingUid = null;
+  let deepLinkHandled = false;
+  let authActionInFlight = false; // true while a sign-in/signup button handler is actively running
+  const pendingProfileUid = new URLSearchParams(location.search).get('u');
+  const DEFAULT_STATS = {runs:0, meters:0, wins:0, losses:0, timeS:0, finishedMeters:0};
+
+  function resizeImageToAvatar(file, size){
+    size = size || 96;
+    return new Promise((resolve, reject)=>{
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = ev => { img.onload = () => {
+        const canvas=document.createElement('canvas');
+        canvas.width=size; canvas.height=size;
+        const ctx=canvas.getContext('2d');
+        const s = Math.min(img.width,img.height);
+        ctx.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,size,size);
+        resolve(canvas.toDataURL('image/jpeg',0.82));
+      }; img.onerror = reject; img.src = ev.target.result; };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  $('uploadTrigger').addEventListener('click', ()=> $('avatarInput').click());
+  $('avatarInput').addEventListener('change', async (e)=>{
+    const file = e.target.files[0]; if (!file) return;
+    try{
+      pendingAvatar = await resizeImageToAvatar(file);
+      $('avatarPreview').style.background='transparent';
+      $('avatarPreview').innerHTML = `<img src="${pendingAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    }catch(e){}
+  });
+
+  function setAuthMode(mode){
+    authMode = mode;
+    $('signupFields').classList.toggle('hidden', mode==='login');
+    $('policyRow').classList.toggle('hidden', mode==='login');
+    $('authSubmitBtn').textContent = mode==='signup' ? 'Create Account' : 'Log In';
+    $('authSub').textContent = mode==='signup' ? 'Create an account to get on the track.' : 'Welcome back — log in to race.';
+    $('authToggleLink').textContent = mode==='signup' ? 'Already have an account? Log in' : "New here? Create an account";
+    $('authError').classList.add('hidden');
+  }
+  $('authToggleLink').addEventListener('click', ()=> setAuthMode(authMode==='signup'?'login':'signup'));
+
+  function showAuthError(msg){ $('authError').textContent = msg; $('authError').classList.remove('hidden'); }
+
+  // Returns {isNewUser, stats} — creates the profile only if it doesn't already exist
+  async function ensureUserDoc(uid, fallbackName, fallbackAvatar){
+    const snap = await fbdb.ref(`users/${uid}`).once('value');
+    if (snap.exists()){
+      const data = snap.val();
+      profile = {name:data.name, avatar:data.avatar||null};
+      return {isNewUser:false, stats: data.stats || DEFAULT_STATS};
+    } else {
+      profile = {name:fallbackName||'Runner', avatar:fallbackAvatar||null};
+      await fbdb.ref(`users/${uid}`).set({name:profile.name, avatar:profile.avatar, stats:DEFAULT_STATS});
+      return {isNewUser:true, stats: DEFAULT_STATS};
+    }
+  }
+
+  let currentStats = DEFAULT_STATS;
+  const SOCIAL_CONSENT_KEY = 'paceduel_social_policy_agreed';
+
+  // Shared finish-up step for every successful sign-in path (email, Google, Facebook, and page-reload persistence)
+  function finishLogin(uid, statsResult){
+    myUid = uid;
+    currentStats = statsResult.stats;
+    if (pendingProfileUid && !deepLinkHandled){
+      deepLinkHandled = true;
+      history.replaceState(null, '', location.pathname); // clean the URL so a later refresh doesn't re-redirect
+      showStats(pendingProfileUid);
+    } else {
+      goHome();
+    }
+  }
+
+  // Applies the "must agree to policy if this is a brand-new account" rule.
+  // Used both right after a popup resolves AND from onAuthStateChanged, because some
+  // mobile/embedded browsers silently fall back to a full page reload during Google/Facebook
+  // sign-in — which would otherwise skip the button handler entirely and log the person in
+  // unchecked. Reads consent from sessionStorage (set just before the sign-in started) so it
+  // survives that reload; the live checkbox DOM state wouldn't.
+  async function applyNewUserConsentGate(uid, r, providerLabel){
+    if (!r.isNewUser) return true;
+    const agreed = sessionStorage.getItem(SOCIAL_CONSENT_KEY) === '1';
+    if (agreed) return true;
+    // Roll back: remove the just-created profile and sign out, so nothing is left half-registered
+    try{ await fbdb.ref(`users/${uid}`).remove(); }catch(e){}
+    try{ await firebase.auth().signOut(); }catch(e){}
+    showAuthError(`Please agree to the User Policy (checkbox below Google/Facebook) before creating a new account${providerLabel ? ' with '+providerLabel : ''}.`);
+    show('profileScreen');
+    return false;
+  }
+
+  $('authSubmitBtn').addEventListener('click', async ()=>{
+    const email = $('emailInput').value.trim();
+    const password = $('passwordInput').value;
+    $('authError').classList.add('hidden');
+    if (!email || !password){ showAuthError('Enter an email and password.'); return; }
+    authActionInFlight = true;
+    try{
+      if (authMode==='signup'){
+        const name = $('nameInput').value.trim();
+        if (!name){ showAuthError('Enter a display name.'); return; }
+        if (!$('policyCheckboxEmail').checked){ showAuthError('Please confirm you\'ve read and agree to the User Policy.'); return; }
+        const cred = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        const r = await ensureUserDoc(cred.user.uid, name, pendingAvatar);
+        finishLogin(cred.user.uid, r);
+      } else {
+        const cred = await firebase.auth().signInWithEmailAndPassword(email, password);
+        const r = await ensureUserDoc(cred.user.uid, null, null);
+        finishLogin(cred.user.uid, r);
+      }
+    }catch(e){ showAuthError(e.message || 'Something went wrong.'); }
+    finally{ authActionInFlight = false; }
+  });
+
+  // Social sign-in: we don't know in advance whether this is a new or returning account,
+  // so we only require the policy checkbox if the popup reveals it's genuinely a new profile —
+  // returning Google/Facebook users are never blocked by it.
+  async function handleSocialAuth(provider, providerLabel){
+    authActionInFlight = true;
+    sessionStorage.setItem(SOCIAL_CONSENT_KEY, $('policyCheckboxSocial').checked ? '1' : '0');
+    try{
+      const result = await firebase.auth().signInWithPopup(provider);
+      const r = await ensureUserDoc(result.user.uid, result.user.displayName, result.user.photoURL);
+      const ok = await applyNewUserConsentGate(result.user.uid, r, providerLabel);
+      if (!ok) return;
+      finishLogin(result.user.uid, r);
+    }catch(e){ showAuthError(e.message || `${providerLabel} sign-in failed.`); }
+    finally{
+      authActionInFlight = false;
+      sessionStorage.removeItem(SOCIAL_CONSENT_KEY);
+    }
+  }
+
+  $('googleBtn').addEventListener('click', ()=>{
+    handleSocialAuth(new firebase.auth.GoogleAuthProvider(), 'Google');
+  });
+  $('facebookBtn').addEventListener('click', ()=>{
+    handleSocialAuth(new firebase.auth.FacebookAuthProvider(), 'Facebook');
+  });
+
+  firebase.auth().onAuthStateChanged(async (user)=>{
+    if (authActionInFlight) return; // an explicit handler above is already managing this transition
+    if (user){
+      const r = await ensureUserDoc(user.uid, user.displayName, user.photoURL);
+      const ok = await applyNewUserConsentGate(user.uid, r, null);
+      sessionStorage.removeItem(SOCIAL_CONSENT_KEY);
+      if (!ok) return;
+      finishLogin(user.uid, r);
+    } else {
+      myUid = null;
+      show('profileScreen');
+    }
+  });
+
+  function goHome(){
+    $('homeName').textContent = profile.name;
+    paintAvatar($('homeAvatar'), profile);
+    show('homeScreen');
+    loadLeaderboard();
+  }
+
+  $('homeWho').addEventListener('click', ()=> showStats());
+  $('backHomeFromStatsBtn').addEventListener('click', ()=> show('homeScreen'));
+  $('signOutBtn2').addEventListener('click', async ()=>{
+    await firebase.auth().signOut();
+    $('nameInput').value=''; $('emailInput').value=''; $('passwordInput').value=''; pendingAvatar=null;
+    $('avatarPreview').style.background='var(--track-red)'; $('avatarPreview').innerHTML='?';
+    setAuthMode('signup');
+  });
+
+  $('deleteAccountBtn').addEventListener('click', async ()=>{
+    const typed = window.prompt(
+      "This permanently deletes your profile, stats, run history, and login — this cannot be undone.\n\nType \"delete\" to confirm:"
+    );
+    if (typed === null) return; // cancelled
+    if (typed.trim().toLowerCase() !== 'delete'){
+      alert('Account not deleted — you must type "delete" to confirm.');
+      return;
+    }
+    try{
+      await fbdb.ref(`users/${myUid}`).remove();
+      const user = firebase.auth().currentUser;
+      await user.delete();
+      alert('Your account has been deleted.');
+      location.reload();
+    }catch(e){
+      if (e.code === 'auth/requires-recent-login'){
+        alert("For your security, Firebase requires a recent login to delete an account. Please log out, log back in, then try deleting your account again right away.");
+      } else {
+        alert('Could not delete account: ' + (e.message || 'unknown error'));
+      }
+    }
+  });
+
+  async function showStats(uid){
+    const targetUid = uid || myUid;
+    viewingUid = targetUid;
+    const isOwn = targetUid === myUid;
+
+    const userSnap = await fbdb.ref(`users/${targetUid}`).once('value');
+    const data = userSnap.exists() ? userSnap.val() : {name:'Runner', avatar:null, status:'', stats:DEFAULT_STATS};
+    const displayProfile = {name: data.name||'Runner', avatar: data.avatar||null};
+    const s = data.stats || DEFAULT_STATS;
+    if (isOwn) currentStats = s;
+
+    $('statsEyebrow').textContent = isOwn ? 'Your Profile' : `${displayProfile.name}'s Profile`;
+    paintAvatar($('statsAvatar'), displayProfile);
+    $('statsName').textContent = displayProfile.name;
+    $('statRuns').textContent = s.runs||0;
+    $('statMeters').textContent = Math.round(s.meters||0) + ' m';
+    $('statRecord').textContent = `${s.wins||0}–${s.losses||0}`;
+    if (s.finishedMeters>0){
+      const paceMinPerKm = (s.timeS / s.finishedMeters) * 1000/60;
+      const m = Math.floor(paceMinPerKm), sec = Math.round((paceMinPerKm-m)*60);
+      $('statPace').textContent = `${m}:${sec.toString().padStart(2,'0')}`;
+    } else { $('statPace').textContent = '—'; }
+
+    // Status window — editable for the owner, read-only for visitors
+    const statusText = data.status || '';
+    $('statusEditRow').classList.toggle('hidden', !isOwn);
+    $('statusReadOnly').classList.toggle('hidden', isOwn);
+    if (isOwn){
+      $('statusInput').value = statusText;
+      $('statusCharCount').textContent = `${statusText.length}/150`;
+    } else {
+      $('statusReadOnly').textContent = statusText || 'No status yet.';
+    }
+
+    // Owner-only controls
+    $('statsUploadTrigger').classList.toggle('hidden', !isOwn);
+    $('signOutBtn2').classList.toggle('hidden', !isOwn);
+    $('deleteAccountBtn').classList.toggle('hidden', !isOwn);
+    $('historySection').classList.toggle('hidden', !isOwn);
+
+    show('statsScreen');
+    if (isOwn) loadHistory();
+  }
+
+  $('statusInput').addEventListener('input', ()=>{
+    $('statusCharCount').textContent = `${$('statusInput').value.length}/150`;
+  });
+  $('saveStatusBtn').addEventListener('click', async ()=>{
+    const text = $('statusInput').value.slice(0,150);
+    try{
+      await fbdb.ref(`users/${myUid}/status`).set(text);
+      $('saveStatusBtn').textContent = 'Saved ✓';
+      setTimeout(()=> $('saveStatusBtn').textContent='Save', 1200);
+    }catch(e){ alert('Could not save status — check your connection.'); }
+  });
+
+  $('shareProfileBtn').addEventListener('click', async ()=>{
+    const url = `${location.origin}${location.pathname}?u=${viewingUid}`;
+    const restoreLabel = ()=> setTimeout(()=>{ $('shareProfileBtn').textContent = '🔗 Copy Profile Link'; }, 1500);
+    try{
+      await navigator.clipboard.writeText(url);
+      $('shareProfileBtn').textContent = 'Link copied ✓';
+      restoreLabel();
+    }catch(e){
+      // Clipboard API unavailable (e.g. no HTTPS, older browser) — fall back to a manual copy prompt
+      window.prompt('Copy this link:', url);
+    }
+  });
+
+  async function loadHistory(){
+    const box = $('historyBox');
+    box.innerHTML = '<div class="lb-empty">Loading…</div>';
+    try{
+      const snap = await fbdb.ref(`users/${myUid}/history`).orderByChild('t').limitToLast(3).once('value');
+      if (!snap.exists()){ box.innerHTML = '<div class="lb-empty">No runs yet — go race someone!</div>'; return; }
+      const rows = [];
+      snap.forEach(child => rows.push({key: child.key, ...child.val()}));
+      rows.sort((a,b)=> (b.t||0)-(a.t||0));
+      box.innerHTML = rows.map(r=>{
+        const resultLabel = r.meCheat ? 'DQ' : (r.won ? 'WIN' : 'LOSS');
+        const resultColor = r.meCheat ? 'var(--danger)' : (r.won ? 'var(--lime)' : 'var(--slate)');
+        const timeTxt = r.meCheat ? 'Disqualified' : (r.meTimeS ? r.meTimeS.toFixed(2)+'s' : 'DNF');
+        return `<div class="lb-row" style="cursor:pointer;" data-histkey="${r.key}">
+          <div class="avatar" style="width:32px;height:32px;font-size:12px;background:${r.opponentAvatar?'transparent':colorFor(r.opponentName)}">${r.opponentAvatar?`<img src="${r.opponentAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:initials(r.opponentName)}</div>
+          <div class="lb-name">vs ${r.opponentName||'Runner'}</div>
+          <div class="lb-meters" style="color:${resultColor}">${resultLabel} · ${timeTxt}</div>
+        </div>`;
+      }).join('');
+      box.querySelectorAll('[data-histkey]').forEach(el=>{
+        el.addEventListener('click', ()=>{
+          const r = rows.find(x=>x.key===el.getAttribute('data-histkey'));
+          if (r) openHistoryEntry(r);
+        });
+      });
+    }catch(e){ box.innerHTML = '<div class="lb-empty">Couldn\'t load history.</div>'; }
+  }
+
+  function openHistoryEntry(entry){
+    raceCode = entry.raceCode;
+    myLane = entry.myLane;
+    isBot = !!entry.isBot;
+    opponentProfile = {name: entry.opponentName||'Runner', avatar: entry.opponentAvatar||null};
+    const meData = {finished:entry.meFinished, cheat:entry.meCheat, finishTimeS:entry.meTimeS, distance:entry.meDistance};
+    const oppData = {finished:entry.oppFinished, cheat:entry.oppCheat, finishTimeS:entry.oppTimeS, distance:entry.oppDistance};
+    showFinish(meData, oppData, entry.won, {historyMode:true});
+  }
+
+  $('backToProfileFromFinishBtn').addEventListener('click', ()=>{
+    detachChat();
+    showStats();
+  });
+
+  $('statsUploadTrigger').addEventListener('click', ()=> $('statsAvatarInput').click());
+  $('statsAvatarInput').addEventListener('change', async (e)=>{
+    const file = e.target.files[0]; if (!file) return;
+    const prevLabel = $('statsUploadTrigger').textContent;
+    $('statsUploadTrigger').textContent = 'Uploading…';
+    try{
+      const dataUrl = await resizeImageToAvatar(file);
+      profile.avatar = dataUrl;
+      await fbdb.ref(`users/${myUid}/avatar`).set(dataUrl);
+      paintAvatar($('statsAvatar'), profile);
+      paintAvatar($('homeAvatar'), profile);
+      $('statsUploadTrigger').textContent = 'Update photo';
+    }catch(err){
+      $('statsUploadTrigger').textContent = prevLabel;
+    }
+  });
+
+  async function recordRaceResult(won, didFinish, timeSeconds){
+    if (!myUid) return;
+    // Meters only ever counted for a completed 400m — DNFs contribute 0, never partial GPS distance.
+    const metersToRecord = didFinish ? TRACK_LENGTH : 0;
+    const isWin = didFinish && won; // DNF can never be recorded as a win
+    try{
+      const snap = await fbdb.ref(`users/${myUid}/stats`).once('value');
+      const s = snap.exists() ? snap.val() : {...DEFAULT_STATS};
+      s.runs = (s.runs||0) + 1;
+      s.meters = (s.meters||0) + metersToRecord;
+      if (isWin) s.wins = (s.wins||0)+1; else s.losses = (s.losses||0)+1;
+      if (didFinish && timeSeconds){ s.timeS = (s.timeS||0) + timeSeconds; s.finishedMeters = (s.finishedMeters||0) + TRACK_LENGTH; }
+      await fbdb.ref(`users/${myUid}/stats`).set(s);
+      currentStats = s;
+
+      const monthKey = new Date().toISOString().slice(0,7); // YYYY-MM
+      const mSnap = await fbdb.ref(`monthlyStats/${monthKey}/${myUid}`).once('value');
+      const prevMeters = mSnap.exists() ? (mSnap.val().meters||0) : 0;
+      await fbdb.ref(`monthlyStats/${monthKey}/${myUid}`).set({name:profile.name, avatar:profile.avatar||null, meters: prevMeters + metersToRecord});
+    }catch(e){}
+  }
+
+  async function loadLeaderboard(){
+    const box = $('leaderboardBox');
+    box.innerHTML = '<div class="lb-empty">Loading…</div>';
+    try{
+      const monthKey = new Date().toISOString().slice(0,7);
+      const snap = await fbdb.ref(`monthlyStats/${monthKey}`).orderByChild('meters').limitToLast(3).once('value');
+      if (!snap.exists()){ box.innerHTML = '<div class="lb-empty">No runs logged yet this month — be the first!</div>'; return; }
+      const rows = [];
+      snap.forEach(child => rows.push({uid: child.key, ...child.val()}));
+      rows.sort((a,b)=> (b.meters||0)-(a.meters||0));
+      box.innerHTML = rows.map((r,i)=>`
+        <div class="lb-row" style="cursor:pointer;" data-uid="${r.uid}">
+          <div class="lb-rank">#${i+1}</div>
+          <div class="avatar" style="width:32px;height:32px;font-size:12px;background:${r.avatar?'transparent':colorFor(r.name)}">${r.avatar?`<img src="${r.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:initials(r.name)}</div>
+          <div class="lb-name">${(r.name||'Runner')}</div>
+          <div class="lb-meters">${Math.round(r.meters||0)} m</div>
+        </div>`).join('');
+      box.querySelectorAll('[data-uid]').forEach(el=>{
+        el.addEventListener('click', ()=> showStats(el.getAttribute('data-uid')));
+      });
+    }catch(e){ box.innerHTML = '<div class="lb-empty">Couldn\'t load leaderboard.</div>'; }
+  }
+
+  // ================= HOME SCREEN =================
+  $('friendCard').addEventListener('click', ()=> show('friendSetupScreen'));
+  $('backHomeFromFriendBtn').addEventListener('click', ()=> show('homeScreen'));
+
+  $('laneABtn').addEventListener('click', ()=>{ myLane='A'; $('laneABtn').classList.add('active'); $('laneBBtn').classList.remove('active'); });
+  $('laneBBtn').addEventListener('click', ()=>{ myLane='B'; $('laneBBtn').classList.add('active'); $('laneABtn').classList.remove('active'); });
+
+  $('joinFriendBtn').addEventListener('click', async ()=>{
+    const val = $('raceCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+    if (!val){ $('raceCode').focus(); return; }
+    raceCode = val; isBot = false;
+    await writeLane({distance:0, speed:0, finished:false, finishTimeS:null, name:profile.name, avatar:profile.avatar});
+    $('waitLabel').textContent = 'WAITING FOR FRIEND';
+    $('waitCode').textContent = raceCode;
+    $('waitSub').textContent = `You're on Track ${myLane}. Share the code above — once your friend joins, start the countdown.`;
+    show('waitScreen');
+    pollFriendWaiting();
+  });
+
+  async function pollFriendWaiting(){
+    clearInterval(pollTimer);
+    pollTimer = setInterval(async ()=>{
+      const other = await readLane(myLane==='A'?'B':'A');
+      $('startCountdownBtn').classList.toggle('hidden', !other);
+      if (other){ opponentProfile = {name:other.name||'Opponent', avatar:other.avatar||null}; }
+      const state = await readState();
+      if (state && state.startAt){ clearInterval(pollTimer); enterCountdown(state.startAt); }
+    }, 1200);
+  }
+  $('startCountdownBtn').addEventListener('click', async ()=>{
+    const t = Date.now()+10000;
+    await writeState({startAt:t});
+    clearInterval(pollTimer);
+    enterCountdown(t);
+  });
+
+  // ---- matchmaking ----
+  let botFallbackTimer = null;
+  $('matchCard').addEventListener('click', startMatchmaking);
+
+  async function startMatchmaking(){
+    myId = genId();
+    $('waitLabel').textContent = 'FINDING AN OPPONENT';
+    $('waitCode').textContent = '';
+    $('waitSub').textContent = "Searching nearby... if no one's found in a few seconds, you'll race a 7:00/km pacer bot instead.";
+    $('startCountdownBtn').classList.add('hidden');
+    show('waitScreen');
+
+    const keys = await mmList();
+    let candidateId = null, candidateData = null;
+    for (const id of keys){
+      if (id === myId) continue;
+      const data = await mmGet(id);
+      if (data && data.status==='waiting' && (Date.now()-data.t) < 20000){ candidateId = id; candidateData = data; break; }
+    }
+
+    if (candidateId){
+      const sorted = [myId, candidateId].sort();
+      myLane = sorted[0]===myId ? 'A' : 'B';
+      raceCode = 'mm-' + sorted[0];
+      isBot = false;
+      opponentProfile = {name: candidateData.name||'Runner', avatar: candidateData.avatar||null};
+      const startAtVal = Date.now()+10000;
+      await mmSet(candidateId, {t:candidateData.t, status:'matched', raceCode, opponentName:profile.name, opponentAvatar:profile.avatar});
+      await writeState({startAt:startAtVal});
+      await writeLane({distance:0, speed:0, finished:false, finishTimeS:null, name:profile.name, avatar:profile.avatar});
+      enterCountdown(startAtVal);
+      return;
+    }
+
+    // no one found — queue myself and wait, with bot fallback
+    await mmSet(myId, {t:Date.now(), status:'waiting', name:profile.name, avatar:profile.avatar});
+    clearInterval(pollTimer);
+    pollTimer = setInterval(async ()=>{
+      const mine = await mmGet(myId);
+      if (mine && mine.status==='matched'){
+        clearInterval(pollTimer); clearTimeout(botFallbackTimer);
+        raceCode = mine.raceCode; isBot=false;
+        const sorted = [myId, raceCode.replace('mm-','')].sort();
+        myLane = sorted[0]===myId ? 'A' : 'B';
+        opponentProfile = {name: mine.opponentName||'Runner', avatar: mine.opponentAvatar||null};
+        await writeLane({distance:0, speed:0, finished:false, finishTimeS:null, name:profile.name, avatar:profile.avatar});
+        const state = await readState();
+        enterCountdown(state && state.startAt ? state.startAt : Date.now()+10000);
+      }
+    }, 1200);
+
+    botFallbackTimer = setTimeout(async ()=>{
+      clearInterval(pollTimer);
+      await mmDelete(myId);
+      isBot = true; myLane='A'; raceCode='bot-'+myId;
+      opponentProfile = {name:'Pacer Bot', avatar:null};
+      enterCountdown(Date.now()+10000);
+    }, BOT_TIMEOUT_MS);
+  }
+
+  $('cancelWaitBtn').addEventListener('click', async ()=>{
+    clearInterval(pollTimer); clearTimeout(botFallbackTimer);
+    if (myId) await mmDelete(myId);
+    show('homeScreen');
+  });
+
+  // ================= COUNTDOWN =================
+  function enterCountdown(targetMs){
+    show('countScreen');
+    startGPS();
+    const tick = ()=>{
+      const remain = Math.ceil((targetMs-Date.now())/1000);
+      if (remain>0){ $('countNum').textContent = remain; requestAnimationFrame(()=>setTimeout(tick,200)); }
+      else { startAt = targetMs; enterRace(); }
+    };
+    tick();
+  }
+
+  // ================= RACE =================
+  function enterRace(){
+    show('raceScreen');
+    $('raceCodeLabel').textContent = isBot ? 'VS PACER BOT' : 'RACE ' + raceCode.toUpperCase();
+    const meLane = myLane, oppLane = myLane==='A'?'B':'A';
+    $('tagA').classList.toggle('hidden', myLane!=='A');
+    $('tagB').classList.toggle('hidden', myLane!=='B');
+    paintAvatar($('avatarA'), myLane==='A'?profile:opponentProfile);
+    paintAvatar($('avatarB'), myLane==='B'?profile:opponentProfile);
+    $('nameA').childNodes[0].nodeValue = (myLane==='A'?profile.name:opponentProfile.name) + ' ';
+    $('nameB').childNodes[0].nodeValue = (myLane==='B'?profile.name:opponentProfile.name) + ' ';
+
+    distanceM=0; finished=false; finishTimeS=null; botDistance=0;
+    raceEnded=false; myFinishedNotified=false; forceEnded=false; lastDataA=null; lastDataB=null;
+    cheatFlagged=false; cheatReason=''; startSpeedChecked=false;
+    $('waitingBanner').classList.add('hidden');
+
+    elapsedTimer = setInterval(()=>{
+      $('elapsedTime').textContent = Math.max(0,(Date.now()-startAt)/1000).toFixed(1)+'s';
+    }, 100);
+
+    raceLoopTimer = setInterval(async ()=>{
+      let dataA, dataB;
+      if (isBot){
+        const e = Math.max(0,(Date.now()-startAt)/1000);
+        const wobble = 1 + Math.sin(e/3)*0.03;
+        botDistance = Math.min(TRACK_LENGTH, BOT_PACE_SPEED*wobble*e);
+        const botFinished = botDistance>=TRACK_LENGTH;
+        const botTime = botFinished ? TRACK_LENGTH/BOT_PACE_SPEED : null;
+        dataA = meLane==='A' ? {distance:distanceM, speed:currentSpeed, finished, finishTimeS, cheat:cheatFlagged, cheatReason, name:profile.name, avatar:profile.avatar}
+                              : {distance:botDistance, speed:BOT_PACE_SPEED, finished:botFinished, finishTimeS:botTime, cheat:false, cheatReason:'', name:'Pacer Bot', avatar:null};
+        dataB = meLane==='B' ? {distance:distanceM, speed:currentSpeed, finished, finishTimeS, cheat:cheatFlagged, cheatReason, name:profile.name, avatar:profile.avatar}
+                              : {distance:botDistance, speed:BOT_PACE_SPEED, finished:botFinished, finishTimeS:botTime, cheat:false, cheatReason:'', name:'Pacer Bot', avatar:null};
+      } else {
+        await writeLane({distance:Math.min(distanceM,TRACK_LENGTH), speed:currentSpeed, finished, finishTimeS, cheat:cheatFlagged, cheatReason, name:profile.name, avatar:profile.avatar});
+        const [rA, rB] = await Promise.all([readLane('A'), readLane('B')]);
+        dataA = meLane==='A' ? {distance:distanceM, speed:currentSpeed, finished, finishTimeS, cheat:cheatFlagged, cheatReason, name:profile.name, avatar:profile.avatar} : rA;
+        dataB = meLane==='B' ? {distance:distanceM, speed:currentSpeed, finished, finishTimeS, cheat:cheatFlagged, cheatReason, name:profile.name, avatar:profile.avatar} : rB;
+      }
+      lastDataA = dataA; lastDataB = dataB;
+      renderLane('A', dataA); renderLane('B', dataB);
+      checkFinish(dataA, dataB);
+    }, 800);
+  }
+
+  $('forceFinishBtn').addEventListener('click', ()=>{
+    if (raceEnded) return;
+    const meData = myLane==='A'?lastDataA:lastDataB;
+    const oppData = myLane==='A'?lastDataB:lastDataA;
+    const winnerIsMe = !!(meData && meData.finished && !meData.cheat);
+    finalizeRace(
+      meData || {distance:distanceM, speed:0, finished, finishTimeS, cheat:cheatFlagged, cheatReason, name:profile.name, avatar:profile.avatar},
+      oppData || {distance:0, speed:0, finished:false, finishTimeS:null, cheat:false, cheatReason:'', name:opponentProfile.name, avatar:opponentProfile.avatar},
+      winnerIsMe
+    );
+  });
+
+  function fmtPace(speed){
+    if (!speed || speed<0.3) return '—';
+    const m=(1000/speed)/60, mm=Math.floor(m), ss=Math.round((m-mm)*60);
+    return `${mm}:${ss.toString().padStart(2,'0')}`;
+  }
+  function renderLane(lane, data){
+    if (!data) return;
+    const d = Math.min(data.distance||0, TRACK_LENGTH);
+    $('fill'+lane).style.width = Math.min(100,(d/TRACK_LENGTH)*100)+'%';
+    $('dist'+lane).textContent = d.toFixed(1)+' m';
+    $('speed'+lane).textContent = (data.speed||0).toFixed(1);
+    $('pace'+lane).textContent = fmtPace(data.speed);
+  }
+
+  let raceEnded = false, myFinishedNotified = false, forceEnded = false, lastDataA = null, lastDataB = null;
+
+  function finalizeRace(meData, oppData, winnerIsMe){
+    raceEnded = true;
+    clearInterval(raceLoopTimer); clearInterval(elapsedTimer); stopGPS();
+    $('waitingBanner').classList.add('hidden');
+    showFinish(meData, oppData, winnerIsMe);
+  }
+
+  function checkFinish(dataA, dataB){
+    if (raceEnded) return;
+    const dA = dataA?dataA.distance:0, dB = dataB?dataB.distance:0;
+    const gap = dA-dB;
+    $('panelA').classList.toggle('leading', gap>0.3);
+    $('panelB').classList.toggle('leading', gap<-0.3);
+    $('trackA').classList.toggle('leading', gap>0.3);
+    $('trackB').classList.toggle('leading', gap<-0.3);
+    $('gapBanner').textContent = Math.abs(gap)<0.3 ? 'Dead even' : `Track ${gap>0?'A':'B'} leads by ${Math.abs(gap).toFixed(1)} m`;
+
+    const meData = myLane==='A'?dataA:dataB, oppData = myLane==='A'?dataB:dataA;
+    const meLegit = meData && meData.finished && !meData.cheat;
+    const meDQ = meData && meData.finished && meData.cheat;
+    const oppLegit = oppData && oppData.finished && !oppData.cheat;
+    const oppDQ = oppData && oppData.finished && oppData.cheat;
+
+    // My attempt is over (legit finish or disqualified) — stop my GPS, keep tracking opponent live
+    if ((meLegit || meDQ) && !myFinishedNotified){
+      myFinishedNotified = true;
+      stopGPS();
+      currentSpeed = 0;
+      if (meDQ){
+        $('waitingBannerText').textContent = `Run disqualified: you ${meData.cheatReason||'triggered the anti-cheat check'}. This counts as a loss — waiting for your opponent to finish, or end the race now.`;
+      } else {
+        $('waitingBannerText').textContent = `You finished in ${meData.finishTimeS.toFixed(2)}s. Tracking your opponent live until they finish — or end the race now.`;
+      }
+      $('waitingBanner').classList.remove('hidden');
+    }
+
+    // Both sides have a determined outcome (finished legitimately, or disqualified)
+    const meDone = meLegit || meDQ, oppDone = oppLegit || oppDQ;
+    if (meDone && oppDone){
+      let winnerIsMe;
+      if (meLegit && oppLegit) winnerIsMe = meData.finishTimeS <= oppData.finishTimeS;
+      else winnerIsMe = meLegit && !oppLegit; // only a legit finish can win; DQ/DNF always loses
+      finalizeRace(meData, oppData, winnerIsMe);
+    }
+  }
+
+  // ================= FINISH SCREEN =================
+  function showFinish(meData, oppData, winnerIsMe, opts){
+    opts = opts || {};
+    const meLegit = !!(meData.finished && !meData.cheat);
+    const oppLegit = !!(oppData.finished && !oppData.cheat);
+
+    if (!meLegit && !oppLegit){
+      $('finishWinner').textContent = 'No valid finish';
+    } else {
+      $('finishWinner').textContent = winnerIsMe ? `${profile.name} wins` : `${opponentProfile.name} wins`;
+    }
+    const wt = winnerIsMe ? meData.finishTimeS : oppData.finishTimeS;
+    $('finishTimeText').textContent = (winnerIsMe?meLegit:oppLegit) && wt ? `${wt.toFixed(2)}s over 400m` : '';
+
+    paintAvatar($('finAvatarMe'), profile);
+    $('finNameMe').textContent = profile.name;
+    $('finTimeMe').textContent = meData.cheat ? 'Disqualified' : (meData.finishTimeS ? meData.finishTimeS.toFixed(2)+'s' : 'DNF');
+    $('finCardMe').classList.toggle('win', winnerIsMe && meLegit);
+
+    paintAvatar($('finAvatarOpp'), opponentProfile);
+    $('finNameOpp').textContent = opponentProfile.name;
+    $('finTimeOpp').textContent = oppData.cheat ? 'Disqualified' : (oppData.finishTimeS ? oppData.finishTimeS.toFixed(2)+'s' : 'DNF');
+    $('finCardOpp').classList.toggle('win', !winnerIsMe && oppLegit);
+
+    $('chatThread').innerHTML = '';
+    $('msgInput').value='';
+    show('finishScreen');
+
+    $('finishActionRow').classList.toggle('hidden', !!opts.historyMode);
+    $('finishBackRow').classList.toggle('hidden', !opts.historyMode);
+
+    if (!opts.historyMode){
+      recordRaceResult(winnerIsMe, meLegit, meData.finishTimeS);
+      pushHistoryEntry(meData, oppData, winnerIsMe);
+    }
+
+    attachChat(winnerIsMe, opts.historyMode);
+  }
+
+  async function pushHistoryEntry(meData, oppData, winnerIsMe){
+    if (!myUid) return;
+    try{
+      await fbdb.ref(`users/${myUid}/history`).push({
+        raceCode, myLane, isBot: !!isBot,
+        opponentName: opponentProfile.name, opponentAvatar: opponentProfile.avatar||null,
+        meFinished: !!meData.finished, meCheat: !!meData.cheat, meTimeS: meData.finishTimeS||null, meDistance: meData.distance||0,
+        oppFinished: !!oppData.finished, oppCheat: !!oppData.cheat, oppTimeS: oppData.finishTimeS||null, oppDistance: oppData.distance||0,
+        won: !!winnerIsMe, t: Date.now()
+      });
+    }catch(e){}
+  }
+
+  // ================= CHAT (real-time thread) =================
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  }
+
+  function chatBubbleHtml(msg){
+    const mine = msg.from === myLane;
+    const person = mine ? profile : {name: msg.name||opponentProfile.name, avatar: msg.avatar||opponentProfile.avatar};
+    const avatarInner = person.avatar ? `<img src="${person.avatar}" style="width:100%;height:100%;object-fit:cover;">` : initials(person.name);
+    const parts = [];
+    if (msg.text) parts.push(`<div>${escapeHtml(msg.text)}</div>`);
+    if (msg.photo) parts.push(`<img src="${msg.photo}" class="chat-photo">`);
+    return `<div class="chat-msg${mine?' mine':''}">
+      <div class="chat-avatar-sm" style="background:${person.avatar?'transparent':colorFor(person.name)}">${avatarInner}</div>
+      <div><div class="chat-name">${mine?'You':escapeHtml(person.name)}</div><div class="chat-bubble">${parts.join('')}</div></div>
+    </div>`;
+  }
+
+  function appendChatMessage(msg){
+    const log = $('chatThread');
+    if (log.querySelector('.chat-empty')) log.innerHTML = '';
+    log.insertAdjacentHTML('beforeend', chatBubbleHtml(msg));
+    log.scrollTop = log.scrollHeight;
+    if (msg.from === myLane && msg.photo){ mySelfieSent = true; updateSelfieButton(); }
+  }
+
+  let mySelfieSent = false;
+  function updateSelfieButton(){
+    $('sendSelfieBtn').disabled = mySelfieSent;
+    $('sendSelfieBtn').textContent = mySelfieSent ? '📸 Selfie sent' : '📸 Send Selfie';
+  }
+
+  function attachChat(winnerIsMe, historyMode){
+    mySelfieSent = false;
+    updateSelfieButton();
+    detachChat();
+    $('chatThread').innerHTML = '<div class="chat-empty">No messages yet — say gg!</div>';
+
+    // Every race (including bot races) has its own unique raceCode, so chat always persists to Firebase —
+    // there's no real second device to read a bot race's chat live, but it still gets saved for history.
+    chatRef = chatPath();
+    chatRef.on('child_added', snap => appendChatMessage(snap.val()));
+
+    if (isBot && !historyMode){
+      // Bot's one-time greeting — only added on the actual live finish, not every time history reopens it
+      setTimeout(()=>{
+        sendBotMessage(winnerIsMe ? "Nice pace — you beat 7:00/km!" : "Steady as ever. Rematch?");
+      }, 600);
+    }
+  }
+
+  async function sendBotMessage(text){
+    try{ await chatPath().push({from: myLane==='A'?'B':'A', name:'Pacer Bot', avatar:null, t:Date.now(), text}); }
+    catch(e){}
+  }
+
+  function detachChat(){
+    if (chatRef){ chatRef.off(); chatRef = null; }
+  }
+
+  async function resizeSelfie(file){
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = ev => { const img = new Image(); img.onload = () => {
+        const maxDim = 480;
+        let w=img.width, h=img.height;
+        if (w>h){ if (w>maxDim){ h=Math.round(h*maxDim/w); w=maxDim; } }
+        else { if (h>maxDim){ w=Math.round(w*maxDim/h); h=maxDim; } }
+        const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg',0.75));
+      }; img.src = ev.target.result; };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  $('sendMsgBtn').addEventListener('click', async ()=>{
+    const text = $('msgInput').value.trim();
+    if (!text) return;
+    $('msgInput').value='';
+    const ok = await sendChatMessage({text});
+    if (!ok){ $('msgInput').value = text; alert("Couldn't send — check your connection and try again."); }
+  });
+
+  $('sendSelfieBtn').addEventListener('click', ()=>{
+    if (mySelfieSent) return;
+    $('selfieInput').click();
+  });
+  $('selfieInput').addEventListener('change', async (e)=>{
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file || mySelfieSent) return;
+    const dataUrl = await resizeSelfie(file);
+    const ok = await sendChatMessage({photo:dataUrl});
+    if (!ok) alert("Couldn't send selfie — check your connection and try again.");
+  });
+
+  $('raceAgainBtn').addEventListener('click', ()=>{
+    detachChat();
+    raceEnded=false; distanceM=0; lastFix=null; currentSpeed=0; startAt=null; finished=false; botDistance=0;
+    simulateMode=false; if (simulateTimer){clearInterval(simulateTimer); simulateTimer=null;}
+    $('gpsWarn').classList.add('hidden'); $('simulateBtn').classList.add('hidden');
+    show('homeScreen');
+  });
+  $('homeFromFinishBtn').addEventListener('click', ()=>{
+    detachChat();
+    raceEnded=false; distanceM=0; lastFix=null; currentSpeed=0; startAt=null; finished=false; botDistance=0;
+    simulateMode=false; if (simulateTimer){clearInterval(simulateTimer); simulateTimer=null;}
+    $('gpsWarn').classList.add('hidden'); $('simulateBtn').classList.add('hidden');
+    show('homeScreen');
+  });
+
+  // ---- init: onAuthStateChanged (registered above) handles showing the right screen ----
+})();
+</script>
+</body>
+</html>
